@@ -1,21 +1,40 @@
 'use strict';
 
-// With background scripts you can communicate with popup
-// and contentScript files.
-// For more information on background script,
-// See https://developer.chrome.com/extensions/background_pages
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.type === 'GREETINGS') {
-    const message = `Hi ${
-      sender.tab ? 'Con' : 'Pop'
-    }, my name is Bac. I am from Background. It's great to hear from you.`;
+  if (request.action === "fetchData") {
+    if (request.req == "VT"){
+      const vt_url = `https://www.virustotal.com/api/v3/domains/${request.domain}`;
 
-    // Log message coming from the `request` parameter
-    console.log(request.payload.message);
-    // Send a response message
-    sendResponse({
-      message,
-    });
+      const vt_options = {
+        method: 'GET', 
+        mode: "cors",
+        headers: {
+          accept: 'application/json',
+          'x-apikey': process.env.VT_APIKEY
+      }};
+      console.log("123")
+
+      fetch(vt_url, vt_options)
+        .then(response => response.json())
+        .then(data => sendResponse({ success: true, json: data }))
+        .catch(error => sendResponse({ success: false, error: error.message }));
+    }
+    else if (request.req == "KP"){
+      const kp_options = {
+        method: 'GET', 
+        mode: 'cors',
+        headers: {
+            accept: 'application/json',
+            'x-api-key': process.env.KP_APIKEY
+      }}
+      const kp_url = `https://opentip.kaspersky.com/api/v1/search/domain?request=${request.domain}`
+      fetch(kp_url, kp_options)
+        .then(response => response.json())
+        .then(data => sendResponse({ success: true, json: data }))
+        .catch(error => sendResponse({ success: false, error: error.message }));
+    }
+    
+    return true;
   }
 });

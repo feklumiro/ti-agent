@@ -16,9 +16,24 @@
     "css-loader": "^6.11.0",
     "file-loader": "^6.2.0",
     "mini-css-extract-plugin": "^2.9.2",
+    "node-polyfill-webpack-plugin": "^4.1.0",
     "prettier": "^2.8.8",
     "webpack": "^5.98.0",
     "webpack-cli": "^4.10.0",
     "webpack-merge": "^5.10.0"
+  },
+  "dependencies": {
+    "assert": "^2.1.0",
+    "cors-anywhere": "^0.4.4",
+    "dotenv": "^16.4.7",
+    "fetch-with-proxy": "^3.0.1",
+    "https": "^1.0.0",
+    "https-browserify": "^1.0.0",
+    "https-proxy-agent": "^7.0.6",
+    "net": "^1.0.2",
+    "node": "^23.9.0",
+    "node-fetch": "^3.3.2",
+    "tls": "^0.0.1",
+    "whatwg-url": "^14.1.1"
   }
 }
