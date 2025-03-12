@@ -13,7 +13,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           accept: 'application/json',
           'x-apikey': process.env.VT_APIKEY
       }};
-      console.log("123")
 
       fetch(vt_url, vt_options)
         .then(response => response.json())
