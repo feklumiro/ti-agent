@@ -19,3 +19,9 @@ npm-debug.log*
 .env/
 env/
 ENV/
+
+#Dev-tools
+report.*
+reports.*
+report/
+reports/
