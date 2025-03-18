@@ -73,34 +73,72 @@ function alerting(report){
     if(confirm(report.msg)) history.back();
     else{
       st = 1; 
-      report.msg = "Страница содержит вредоносные объекты\nБудьте осторожны."
+      report.msg = "Страница содержит вредоносные объекты<br>Будьте осторожны."
     }
   }
-  var txcolor = ""
-  var brcolor = ""
-  if (report.status == "Dangerous"){
-    txcolor = "#ff0000"
-    brcolor = "#c35656"
+  if (report.status != "Safe"){
+    var txcolor = ""
+    var brcolor = ""
+    if (report.status == "Dangerous"){
+      txcolor = "#ff0000"
+      brcolor = "#c35656"
+    }
+    else if (report.status == "Malicious"){
+      txcolor = "#710052"
+      brcolor = "#c76b9a"
+    }
+    else{
+      txcolor = "#000d71"
+      brcolor = "#6b7bc7"
+    }
+    let tsh = document.getElementById("statinfo");
+    if (tsh) tsh.remove();
+    document.body.insertAdjacentHTML('beforeend', `
+      <div id="statinfo" style="background-color: #e9e9e9;border-color: #c35656;border-style: solid;color: #ff0000;font-family: 'Segoe UI';font-size: 14px;position: fixed;left: 8px;bottom: 50px;width: 308px;padding: 14px; padding-bottom:5px;padding-top:12px; z-index: 999;">
+        <button class="close-btn">✕</button>
+        <p>${report.msg.trim()}</p>
+      </div>
+    <style>
+        #statinfo{
+            background-color: #e9e9e9;
+            border-color: #c35656;
+            border-style: solid;
+            color: #ff0000;
+            font-family: 'Segoe UI';
+            font-size: 14px;
+            position: fixed;
+            left: 8px;
+            bottom: 50px;
+            width: 308px;
+            padding: 14px; 
+            padding-bottom:5px;
+            padding-top:12px; 
+            z-index: 999;
+        }
+        .close-btn{
+          float:right;
+          display:inline-block;
+          padding:2px 5px;
+          background:#a5a5a5;
+          margin-top:-6px;
+          margin-right:-8px;
+          font-size: 12px;
+          transition: background-color 0.3s ease;
+        }
+        .close-btn:hover{
+          color: #e8e8e8;
+          background: #7e6e6e;
+        }
+      </style>
+    `);
+    document.querySelector(".close-btn").addEventListener("click", function() {
+      let div = document.getElementById("statinfo");
+      if (div) {
+          div.remove();
+      }
+    });
+
   }
-  else if (report.status == "Malicious"){
-    txcolor = "#710052"
-    brcolor = "#c76b9a"
-  }
-  else if (report.status == "Not safe"){
-    txcolor = "#000d71"
-    brcolor = "#6b7bc7"
-  }
-  else{
-    txcolor = "#0a8b3f"
-    brcolor = "#3dc3a4"
-  }
-  let tsh = document.getElementById("statinfo");
-  if (tsh) tsh.remove();
-  document.body.insertAdjacentHTML('beforeend', `
-    <div id="statinfo" style="background-color: #e9e9e9;border-color: ${brcolor};border-style: solid;color: ${txcolor};font-family: 'Segoe UI';font-size: 14px;position: fixed;left: 2px;bottom: 50px;width: 300px;padding: 14px;z-index: 999; white-space: pre-wrap">
-      ${report.msg.trim()}
-    </div>
-  `);
   console.log(report.status);
   return (st)
 }
