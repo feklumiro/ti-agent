@@ -1,6 +1,17 @@
 'use strict';
 
 
+// function updStorage(){
+//   chrome.storage.sync.get(["warningsEnabled", "vt", "kp", "whiteList"], (data) => {
+//       if (data.warningsEnabled === undefined) chrome.storage.sync.set({ warningsEnabled: true }, () => {})
+//       if (data.vt === undefined) chrome.storage.sync.set({ vt: true }, () => {})
+//       if (data.kp === undefined) chrome.storage.sync.set({ kp: true }, () => {})
+//       if (data.whiteList === undefined) chrome.storage.sync.set({ whiteList: [] }, () => {})
+//   })
+// }
+
+// updStorage();
+
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "fetchData") {
     if (request.req == "VT"){

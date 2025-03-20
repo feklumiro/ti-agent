@@ -4,8 +4,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.type === 'COUNT') {
     console.log(`Current count is ${request.payload.count}`);
   }
-  sendResponse({});
-  return true;
+  if (request.type === "domain"){
+    sendResponse({domain: window.location.hostname});
+    return true;
+  }
 });
 
 
@@ -42,7 +44,7 @@ function checkStatus(vt=null, kp=null){
   }
   else if (tr <= -40){
     st = "Malicious";
-    msg = "ВНИМАНИЕ\nДанная страница классифицирована как Опасная"
+    msg = "ВНИМАНИЕ\nДанная страница классифицирована как Небезопасная"
     if (kp != null && kp.zones.length > 0){
       msg += "\nи помечена меткой "
       if (kp.zones.includes("CATEGORY_MALWARE")){
@@ -67,7 +69,7 @@ function checkStatus(vt=null, kp=null){
   return {rait: tr, status: st, msg: msg}
 }
 
-function alerting(report){
+function alerting(report, mode="warnings"){
   var st = 0
   if (report.status == "Dangerous" | report.status == "Malicious"){
     if(confirm(report.msg)) history.back();
@@ -76,7 +78,7 @@ function alerting(report){
       report.msg = "Страница содержит вредоносные объекты<br>Будьте осторожны."
     }
   }
-  if (report.status != "Safe"){
+  if (mode == "warnings" && report.status != "Safe"){
     var txcolor = ""
     var brcolor = ""
     if (report.status == "Dangerous"){
@@ -142,6 +144,14 @@ function alerting(report){
   console.log(report.status);
   return (st)
 }
+function updStorage(){
+  chrome.storage.sync.get(["warningsEnabled", "vt", "kp", "whiteList"], (data) => {
+      if (data.warningsEnabled === undefined) chrome.storage.sync.set({ warningsEnabled: true }, () => {})
+      if (data.vt === undefined) chrome.storage.sync.set({ vt: true }, () => {})
+      if (data.kp === undefined) chrome.storage.sync.set({ kp: true }, () => {})
+      if (data.whiteList === undefined) chrome.storage.sync.set({ whiteList: [] }, () => {})
+  })
+}
 
 (async () => {
   const domain = window.location.hostname;
@@ -149,40 +159,54 @@ function alerting(report){
   var zn = "";
   var vt={rait: 0};
   var kp={zone: "", zones: []};
-
-  // VIRUSTOTAL API
-  chrome.runtime.sendMessage({ action: "fetchData", req: "VT", domain: domain }, (response) => {
-    if (response.success) {
-      const tt = response.json['data']['attributes']['total_votes'];
-      const lt = response.json['data']['attributes']['last_analysis_stats'];
-      p = tt['harmless']*3 - tt['malicious'] - lt['malicious']*5;
-      console.log(`Vt raiting ${domain}: ${p}`);
-    } else {
-      console.error("api err:", response.error);
-    }
-    vt.rait = p
-    console.log(alerting(checkStatus(vt,kp)));
-  });
-
-  // KASPERSKY API
-  chrome.runtime.sendMessage({ action: "fetchData", req: "KP", domain: domain }, (response) => {
-    if (response.success) {
-      zn = response.json['Zone'];
-      kp.zone = zn;
-      console.log(`${zn} zone`);
-      if (response.json['DomainGeneralInfo'].hasOwnProperty('CategoriesWithZone')){
-        response.json['DomainGeneralInfo']['CategoriesWithZone'].forEach((el) => {
-          if (el['Zone'] == 'Red' | el['Zone'] == 'Orange'){
-            console.log(el['Name']);
-            kp.zones.push(el['Name'])
+  updStorage();
+  
+  chrome.storage.sync.get(["warningsEnabled", "vt", "kp", "whiteList"], (data) => {
+    if (data.warningsEnabled === undefined) data.warningsEnabled = true;
+    if (data.kp === undefined) data.kp = true;
+    if (data.vt === undefined) data.vt = true;
+    if (data.whiteList === undefined) data.whiteList = [];
+    let mode = data.warningsEnabled ? "warnings" : "alert" 
+    if (!data.whiteList.includes(domain)){
+      if (data.vt) {
+        // VIRUSTOTAL API
+        chrome.runtime.sendMessage({ action: "fetchData", req: "VT", domain: domain }, (response) => {
+          if (response.success) {
+            const tt = response.json['data']['attributes']['total_votes'];
+            const lt = response.json['data']['attributes']['last_analysis_stats'];
+            p = tt['harmless']*3 - tt['malicious'] - lt['malicious']*5;
+            console.log(`Vt raiting ${domain}: ${p}`);
+            vt.rait = p
+          } else {
+            console.error("api err:", response.error);
           }
+          console.log(alerting(checkStatus(vt,kp), mode));
         });
       }
-    } else {
-      console.error("api err:", response.error);
+
+      if (data.kp) {
+        // KASPERSKY API
+        chrome.runtime.sendMessage({ action: "fetchData", req: "KP", domain: domain }, (response) => {
+          if (response.success) {
+            zn = response.json['Zone'];
+            kp.zone = zn;
+            console.log(`${zn} zone`);
+            if (response.json['DomainGeneralInfo'].hasOwnProperty('CategoriesWithZone')){
+              response.json['DomainGeneralInfo']['CategoriesWithZone'].forEach((el) => {
+                if (el['Zone'] == 'Red' | el['Zone'] == 'Orange'){
+                  console.log(el['Name']);
+                  kp.zones.push(el['Name'])
+                }
+              });
+            }
+          } else {
+            console.error("api err:", response.error);
+          }
+          console.log(alerting(checkStatus(vt,kp), mode));
+        });
+      }
     }
-    console.log(alerting(checkStatus(vt,kp)));
-  });
+  })
 
 })();
 

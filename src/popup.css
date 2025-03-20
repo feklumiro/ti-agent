@@ -90,3 +90,116 @@ code {
   border: 0.5px dashed #000;
   opacity: 0.1;
 }
+
+
+.legend{
+  font-size: 18px;
+  font-family: 'Segoe';
+}
+.fieldset{
+  margin: 15px;
+}
+
+.container {
+  display: block;
+  position: relative;
+  padding-left: 40px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  font-size: 22px;
+  font-family: 'Segoe UI';
+}
+.container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.checkmark {
+  position: absolute;
+  top: 2px;
+  left: 8px;
+  height: 27px;
+  width: 27px;
+  border-radius: 10px;
+  background-color: #ddd;
+}
+
+.container:hover input ~ .checkmark {
+  background-color: #bbb;
+}
+.container input:checked ~ .checkmark {
+  background-color: #59dab3;
+}
+
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+.container input:checked ~ .checkmark:after {
+  display: block;
+}
+
+.container .checkmark:after {
+  left: 10px;
+  top: 5px;
+  width: 8px;
+  height: 14px;
+  border: solid white;
+  border-width: 0 3px 3px 0;
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
+
+.checkmark-bl {
+  position: absolute;
+  top: 2px;
+  left: 8px;
+  height: 27px;
+  width: 27px;
+  border-radius: 10px;
+  background-color: #ddd;
+}
+
+.container:hover input ~ .checkmark-bl {
+  background-color: #bbb;
+}
+.container input:checked ~ .checkmark-bl {
+  background-color: #23b32c;
+}
+
+.checkmark-bl:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+.container input:checked ~ .checkmark-bl:after {
+  display: block;
+}
+.container .checkmark-bl:after {
+  left: 10px;
+  top: 5px;
+  width: 8px;
+  height: 14px;
+  border: solid white;
+  border-width: 0 3px 3px 0;
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
+
+.whiteList{
+  padding: 10px 10px;
+  font-size: 16px;
+  cursor: pointer;
+  margin: 10px;
+  background-color: lightblue;
+}
+.whiteList:rm,
+.whiteList.rm{
+  background-color: #e6c860;
+}
